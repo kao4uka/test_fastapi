@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  app:
+    build: ./src
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_URL=${MONGO_URL}
+    networks:
+      - app_network
+
+  bot:
+    build: ./bot
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_URL=${MONGO_URL}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    networks:
+      - app_network
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - app_network
+
+  mongodb:
+    image: mongo:4.4
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - app_network
+
+networks:
+  app_network:
+
+volumes:
+  mongodb_data:
